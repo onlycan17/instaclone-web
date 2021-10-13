@@ -3,6 +3,7 @@ import {
   faInstagram,
 } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useForm } from "react-hook-form";
 import styled from "styled-components";
 import AuthLayout from "../components/auth/AuthLayout";
 import BottomBox from "../components/auth/BottomBox";
@@ -11,7 +12,9 @@ import FormBox from "../components/auth/FormBox";
 import Input from "../components/auth/Input";
 import Separator from "../components/auth/Separator";
 import routes from "../routes";
-import { useState } from "react";
+import PageTitle from "../components/PageTitle";
+import FormError from "../components/auth/FormError";
+import { gql, useMutation } from "@apollo/client";
 
 const FacebookLogin = styled.div`
   color: #385285;
@@ -21,44 +24,84 @@ const FacebookLogin = styled.div`
   }
 `;
 
+const LOGIN_MUTATION = gql`
+  mutation login($userId: String!, $password: String!){
+    login(userId: $userId, password: $password){
+      ok
+      token
+      error
+    }
+  }
+`;
+
 function Login() {
-  const [username, setUsername] = useState("");
-  const [usernameError, setUsernameError] = useState("");
-  const onUsernameChange = (event) => {
-    setUsernameError("");
-    setUsername(event.target.value);
-  };
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    console.log(username);
-    if (username === "") {
-      setUsernameError("Not empty pls.");
-    }
+  const { register, handleSubmit, errors, formState, getValues, setError } =
+    useForm({
+      mode: "onChange",
+    });
 
-    if (username.length < 10) {
-      setUsernameError("too short");
+  const onCompleted = (data) => {
+    const {
+      login: { ok, error, token },
+    } = data;
+    if (!ok) {
+      setError("result", {
+        message: error,
+      });
     }
   };
+  const [login, { loading }] = useMutation(LOGIN_MUTATION, {
+    onCompleted,
+  });
 
+  const onSubmitValid = (data) => {
+    if (loading) {
+      return;
+    }
+    const { userId, password } = getValues();
+    login({
+      variables: { userId, password },
+    });
+  };
+  // const onSubmitInvalid = (data) => {
+  //   console.log(data, "invaild");
+  // };
   return (
     <AuthLayout>
+      <PageTitle title="Login" />
       <FormBox>
         <div>
           <FontAwesomeIcon icon={faInstagram} size="3x" />
         </div>
-        <form onSubmit={handleSubmit}>
-          {usernameError}
+        <form onSubmit={handleSubmit(onSubmitValid)}>
           <Input
-            onChange={onUsernameChange}
+            ref={register({
+              required: "UserId is required",
+              minLength: {
+                value: 5,
+                message: "UserId should be longer than 5 chars.",
+              },
+            })}
+            name="userId"
             type="text"
-            placeholder="Username"
+            placeholder="User ID"
+            hasError={Boolean(errors?.userId?.message)}
           />
-          <Input type="password" placeholder="Password" />
+          <FormError message={errors?.userId?.message} />
+          <Input
+            ref={register({ required: "Password is required." })}
+            name="password"
+            type="password"
+            placeholder="Password"
+            hasError={Boolean(errors?.password?.message)}
+          />
+          <FormError message={errors?.password?.message} />
           <Button
             type="submit"
-            value="Log in"
-            disabled={username === "" && username.length < 10 }
+            value={loading ? "Loading..." : "Log in"}
+            disabled={!formState.isValid || loading}
           />
+          <FormError message={errors?.result?.message} />
         </form>
         <Separator />
         <FacebookLogin>

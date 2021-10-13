@@ -7,6 +7,8 @@ import Button from "../components/auth/Button";
 import BottomBox from "../components/auth/BottomBox";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import routes from "../routes";
+import PageTitle from "../components/PageTitle";
+import { faInstagram } from "@fortawesome/free-brands-svg-icons";
 
 const HeaderContainer = styled.div`
   display: flex;
@@ -23,9 +25,10 @@ const Subtitle = styled(FatLink)`
 function SignUp() {
   return (
     <AuthLayout>
+      <PageTitle title="Sign up" />
       <FormBox>
         <HeaderContainer>
-          <FontAwesomeIcon icon="{faInstagram}" size="3x" />
+          <FontAwesomeIcon icon={faInstagram} size="3x" />
           <Subtitle>
             Sign up to see photos and videos from your friends.
           </Subtitle>
