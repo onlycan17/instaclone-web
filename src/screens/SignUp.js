@@ -48,20 +48,25 @@ function SignUp() {
   const history = useHistory();
 
   const onCompleted = (data) => {
+    const { userId, password } = getValues();
     const {
-      createAccount: { ok, error },
+      createAccount: { ok },
     } = data;
     console.log(ok);
     if (!ok) {
       return;
     }
-    history.push(routes.home);
+    history.push(routes.home, {
+      message: "Account created, Please log in.",
+      userId,
+      password,
+    });
   };
   const [createAccount, { loading }] = useMutation(CREATE_ACCOUNT_MUTATION, {
     onCompleted,
   });
 
-  const { register, handleSubmit, errors, formState } = useForm({
+  const { register, handleSubmit, formState, getValues } = useForm({
     mode: "onChange",
   });
 
