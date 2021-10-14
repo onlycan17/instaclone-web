@@ -15,6 +15,7 @@ import routes from "../routes";
 import PageTitle from "../components/PageTitle";
 import FormError from "../components/auth/FormError";
 import { gql, useMutation } from "@apollo/client";
+import { logUserIn } from "../apollo";
 
 const FacebookLogin = styled.div`
   color: #385285;
@@ -25,8 +26,8 @@ const FacebookLogin = styled.div`
 `;
 
 const LOGIN_MUTATION = gql`
-  mutation login($userId: String!, $password: String!){
-    login(userId: $userId, password: $password){
+  mutation login($userId: String!, $password: String!) {
+    login(userId: $userId, password: $password) {
       ok
       token
       error
@@ -35,21 +36,32 @@ const LOGIN_MUTATION = gql`
 `;
 
 function Login() {
-  const { register, handleSubmit, errors, formState, getValues, setError } =
-    useForm({
-      mode: "onChange",
-    });
+  const {
+    register,
+    handleSubmit,
+    errors,
+    formState,
+    getValues,
+    setError,
+    clearErrors,
+  } = useForm({
+    mode: "onChange",
+  });
 
   const onCompleted = (data) => {
     const {
       login: { ok, error, token },
     } = data;
     if (!ok) {
-      setError("result", {
+      return setError("result", {
         message: error,
       });
     }
+    if(token){
+      logUserIn(token);
+    }
   };
+  
   const [login, { loading }] = useMutation(LOGIN_MUTATION, {
     onCompleted,
   });
@@ -63,9 +75,9 @@ function Login() {
       variables: { userId, password },
     });
   };
-  // const onSubmitInvalid = (data) => {
-  //   console.log(data, "invaild");
-  // };
+  const clearLoginError = () =>{
+    clearErrors("result");
+  };
   return (
     <AuthLayout>
       <PageTitle title="Login" />
@@ -78,10 +90,11 @@ function Login() {
             ref={register({
               required: "UserId is required",
               minLength: {
-                value: 5,
+                value: 3,
                 message: "UserId should be longer than 5 chars.",
               },
             })}
+            onChange={clearLoginError}
             name="userId"
             type="text"
             placeholder="User ID"
@@ -90,6 +103,7 @@ function Login() {
           <FormError message={errors?.userId?.message} />
           <Input
             ref={register({ required: "Password is required." })}
+            onChange={clearLoginError}
             name="password"
             type="password"
             placeholder="Password"
