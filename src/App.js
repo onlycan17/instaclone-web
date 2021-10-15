@@ -10,7 +10,6 @@ import SignUp from "./screens/SignUp";
 import routes from "./routes";
 import { HelmetProvider } from "react-helmet-async";
 import Layout from "./components/Layout";
-import Header from "./components/Header";
 
 function App() {
   const isLoggedIn = useReactiveVar(isLoggedInVar);
