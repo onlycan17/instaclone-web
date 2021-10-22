@@ -5,6 +5,7 @@ import PropTypes from "prop-types";
 import React from "react";
 import { Link } from "react-router-dom";
 
+
 const CommentContainer = styled.div``;
 
 const CommentCaption = styled.span`
@@ -20,6 +21,7 @@ const CommentCaption = styled.span`
 `;
 
 function Comment({ author, payload }) {
+ 
   return (
     <CommentContainer>
       <FatText>{author}</FatText>

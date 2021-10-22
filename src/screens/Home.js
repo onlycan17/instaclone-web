@@ -10,24 +10,27 @@ const FEED_QUERY = gql`
       id
       user {
         userId
+        userName
         avatar
       }
       file
       caption
       likes
-      isMine
-      isLiked
-      comments{
+      comments {
         id
-        user{
+        user {
           userId
+          userName
           avatar
         }
         payload
         isMine
-        createAt
+        createdAt
       }
       commentNumber
+      createdAt
+      isMine
+      isLiked
     }
   }
 `;
