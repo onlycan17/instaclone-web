@@ -12,6 +12,7 @@ import { FatText } from "../shared";
 import { faHeart as SolidHeart } from "@fortawesome/free-solid-svg-icons";
 import PropTypes from "prop-types";
 import Comments from "./Comments";
+import { Link } from "react-router-dom";
 
 const TOGGLE_LIKE_MUTATION = gql`
   mutation toggleLike($id: Int!) {
@@ -120,8 +121,12 @@ function Photo({
   return (
     <PhotoContainer key={id}>
       <PhotoHeader>
-        <Avatar lg url={user?.avatar} />
-        <UserId>{user?.userId}</UserId>
+        <Link to={`/users/${user.userId}`}>
+          <Avatar lg url={user?.avatar} />
+        </Link>
+        <Link to={`/users/${user.userId}`}>
+          <UserId>{user?.userId}</UserId>
+        </Link>
       </PhotoHeader>
       {file.endsWith(".mp4") ? (
         <VideoFile src={file} controls autoPlay muted loop />
