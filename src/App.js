@@ -37,7 +37,9 @@ function App() {
                 </Route>
               ) : null}
               <Route path={`/users/:userId`}>
-                <Profile />
+                <Layout>
+                  <Profile />
+                </Layout>
               </Route>
               <Route>
                 <NotFound />
