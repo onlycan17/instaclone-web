@@ -3,8 +3,26 @@ import { faComment, faHeart } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
+import Button from "../components/auth/Button";
+import PageTitle from "../components/PageTitle";
 import { FatText } from "../components/shared";
 import { PHOTO_FRAGMENT } from "../fragments";
+
+const FOLLOW_USER_MUTATION = gql`
+  mutation followUser($userId: String!){
+    followUser(userId: $userId){
+      ok
+    }
+  }
+`;
+
+const UNFOLLOW_USER_MUTATION = gql`
+mutation unfollowUser($userId: String!){
+  unfollowUser(userId: $userId){
+    ok
+  }
+}  
+`;
 
 const SEE_PROFILE_QUERY = gql`
   query seeProfile($userId: String!) {
@@ -48,6 +66,8 @@ const Username = styled.h3`
 const Row = styled.div`
   margin-bottom: 20px;
   font-size: 16px;
+  display: flex;
+  align-items: center;
 `;
 
 const List = styled.ul`
@@ -69,6 +89,7 @@ const Name = styled(FatText)`
 const Grid = styled.div`
   display: grid;
   grid-auto-rows: 290px;
+  grid-auto-columns: 300px;
   grid-template-columns: repeat() (3, 1fr);
   gap: 30px;
   margin-top: 50px;
@@ -106,21 +127,43 @@ const Icon = styled.span`
   }
 `;
 
+const ProfileBtn = styled(Button).attrs({
+  as: "span",
+})`
+  margin-left: 10px;
+  margin-top: 0px;
+`;
+
 function Profile() {
   const { userId } = useParams();
-  const { data } = useQuery(SEE_PROFILE_QUERY, {
+  const { data, loading } = useQuery(SEE_PROFILE_QUERY, {
     variables: {
       userId,
     },
   });
+
+const getButton = (seeProfile) => {
+  const {isMe, isFollowing} = seeProfile;
+  if(isMe){
+    return <ProfileBtn>Edit Profile</ProfileBtn>;
+  }
+  if(isFollowing) {
+    return <ProfileBtn>Unfollow</ProfileBtn>
+  }else{
+    return <ProfileBtn>Follow</ProfileBtn>
+  }
+}
+
   console.log(data);
   return (
     <div>
+      <PageTitle title={loading ? "Loading.." : `${data?.seeProfile?.userId}'s Profile`} />
       <Header>
         <Avatar src={data?.seeProfile?.avatar} />
         <Column>
           <Row>
             <Username>{data?.seeProfile?.userId}</Username>
+            {data?.seeProfile ? getButton(data.seeProfile) : null}
           </Row>
           <Row>
             <List>
@@ -144,7 +187,7 @@ function Profile() {
       </Header>
       <Grid>
         {data?.seeProfile?.photos.map((photo) => (
-          <Photo bg={photo.file}>
+          <Photo key={photo.id} bg={photo.file}>
             <Icons>
               <Icon>
                 <FontAwesomeIcon icon={faHeart} />
