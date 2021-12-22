@@ -11,6 +11,7 @@ import routes from "./routes";
 import { HelmetProvider } from "react-helmet-async";
 import Layout from "./components/Layout";
 import Profile from "./screens/Profile";
+import EditProfile from "./screens/EditProfile";
 
 function App() {
   const isLoggedIn = useReactiveVar(isLoggedInVar);
@@ -39,6 +40,11 @@ function App() {
               <Route path={`/users/:userId`}>
                 <Layout>
                   <Profile />
+                </Layout>
+              </Route>
+              <Route path={`/edit-profile/:userId`}>
+                <Layout>
+                  <EditProfile />
                 </Layout>
               </Route>
               <Route>
